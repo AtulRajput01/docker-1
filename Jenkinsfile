@@ -2,12 +2,12 @@ pipeline {
     agent any
 
     environment {
-    IMAGE_NAME = "spar-back"
-    NEW_STAGE_TAG = "latest"
-    CONTAINER_PORT = "3000"
-    HOST_PORT = "3000"
-    TARGET_URL = "http://3.138.175.67:3000"
-}
+        IMAGE_NAME = "spar-back"
+        NEW_STAGE_TAG = "latest"
+        CONTAINER_PORT = "3000"
+        HOST_PORT = "3000"
+        TARGET_URL = "http://3.138.175.67:3000"
+    }
 
     stages {
         stage('Checkout') {
@@ -31,6 +31,27 @@ docker build -t ${IMAGE_NAME}:latest . | tee failure.log
                     if (buildResult != 0) {
                         error "❌ Docker build failed! Check failure.log"
                     }
+                }
+            }
+        }
+
+        stage('Clean Existing Container on Port') {
+            steps {
+                script {
+                    sh '''#!/bin/bash
+echo "🧹 Checking for containers on port ${HOST_PORT}..."
+
+EXISTING_CONTAINER=$(docker ps --format '{{.ID}} {{.Ports}}' | grep ":${HOST_PORT}->" | awk '{print $1}')
+
+if [ -n "$EXISTING_CONTAINER" ]; then
+    echo "🛑 Stopping container ID: $EXISTING_CONTAINER"
+    docker stop $EXISTING_CONTAINER
+    echo "🗑️ Removing container ID: $EXISTING_CONTAINER"
+    docker rm $EXISTING_CONTAINER
+else
+    echo "✅ No container is running on port ${HOST_PORT}"
+fi
+'''
                 }
             }
         }
