@@ -68,6 +68,28 @@ sleep 10  # Give container time to boot up
             }
         }
 
+        stage('Start ZAP Daemon') {
+            steps {
+                script {
+                    sh '''#!/bin/bash
+echo "⚙️ Starting ZAP as a background daemon..."
+
+nohup zaproxy -daemon -host 0.0.0.0 -port 8089 -config api.disablekey=true > zap.log 2>&1 &
+
+echo "⏳ Waiting for ZAP to become responsive..."
+for i in {1..30}; do
+    STATUS=$(curl -s http://localhost:8089/JSON/core/view/version/)
+    if [[ "$STATUS" == *"version"* ]]; then
+        echo "✅ ZAP is ready."
+        break
+    fi
+    sleep 2
+done
+'''
+                }
+            }
+        }
+
         stage('ZAP Security Scan') {
             steps {
                 script {
