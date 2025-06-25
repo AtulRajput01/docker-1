@@ -2,12 +2,12 @@ pipeline {
     agent any
 
     environment {
-        IMAGE_NAME = "spar-back"
-        NEW_STAGE_TAG = "latest"
-        CONTAINER_PORT = "3000"
-        HOST_PORT = "3000"
-        TARGET_URL = "http://localhost:3000"
-    }
+    IMAGE_NAME = "spar-back"
+    NEW_STAGE_TAG = "latest"
+    CONTAINER_PORT = "3000"
+    HOST_PORT = "3000"
+    TARGET_URL = "http://3.138.175.67:3000"
+}
 
     stages {
         stage('Checkout') {
